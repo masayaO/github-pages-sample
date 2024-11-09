@@ -38,8 +38,11 @@ jobs:
       - name: Build with PR specific path
         run: |
           pnpm build
-          mkdir -p out/pr-preview/${{ github.event.pull_request.number }}
-          cp -r out/* out/pr-preview/${{ github.event.pull_request.number }}/
+          mkdir -p temp/pr-preview/${{ github.event.pull_request.number }}
+          mv out/* temp/pr-preview/${{ github.event.pull_request.number }}/
+          rm -rf out
+          mv temp/* out/
+          rm -rf temp
         env:
           NEXT_PUBLIC_BASE_PATH: /github-pages-sample/pr-preview/${{ github.event.pull_request.number }}
 

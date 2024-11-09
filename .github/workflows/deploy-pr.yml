@@ -36,9 +36,17 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build with PR specific path
-        run: pnpm build
+        run: |
+          pnpm build
+          mkdir -p out/pr-preview/${{ github.event.pull_request.number }}
+          cp -r out/* out/pr-preview/${{ github.event.pull_request.number }}/
         env:
           NEXT_PUBLIC_BASE_PATH: /github-pages-sample/pr-preview/${{ github.event.pull_request.number }}
+
+      - name: Debug output
+        run: |
+          echo "Build directory structure:"
+          ls -R out/
 
       - name: Configure Pages
         uses: actions/configure-pages@v4
@@ -61,8 +69,8 @@ jobs:
         with:
           script: |
             const baseUrl = '${{ steps.deployment.outputs.page_url }}';
-            const prPath = '/pr-preview/${{ github.event.pull_request.number }}';
-            const url = baseUrl.replace(/\/$/, '') + prPath;
+            const baseHost = baseUrl.match(/(.*\.github\.io)/)[1];
+            const url = `${baseHost}/github-pages-sample/pr-preview/${{ github.event.pull_request.number }}`;
             
             const message = `🚀 Preview environment is ready!
 
